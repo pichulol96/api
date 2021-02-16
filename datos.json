@@ -1,0 +1,16 @@
+{
+  "titulo": "Este es un artículo",
+  "visitas": 345,
+  "publicado": true,
+  "categoria": null,
+  "comentarios": [
+    {
+      "autor": "Luisa López",
+      "mensaje": "Muy buen artículo"
+    },
+    {
+      "autor": "Carlos Pérez",
+      "mensaje": "Artículo muy malo"
+    }
+  ]
+}
