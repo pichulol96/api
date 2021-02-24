@@ -4,13 +4,13 @@ require '../../db/conexion.php';
 	  class persona_model 
 	  {
 		  	private $conectar;
-		  	public $articulos;
+		  	public $personas;
 		  	public $resultados;
 
 		  	function __construct()
 		  	{
 		  		$this->conectar=conectar::conexion();
-		  		$this->articulos=array();
+		  		$this->personas=array();
 		  	}
 
 		  	public function get_articulos()
@@ -46,6 +46,45 @@ require '../../db/conexion.php';
 		  		
 		  	}
 
+		  		public function insert_resguardo($datos)
+		  	{
+		  		     date_default_timezone_set('America/Mexico_City');
+					 $time=time();               ////Fecha/////
+					 $fecha=date("Y-m-d");/////Actual///
+					 $hoy = date("H:i:s"); 
+
+		  		$insertResguardo=$this->conectar->query("insert into resguardos
+		  			(fecha,hora,observaciones,idusuario,idpersona)
+		  			values
+		  			('$fecha','$hoy','bueno',1,1)");
+
+		  		if($insertResguardo==true)
+		  		{
+			  		  $resultado=$this->conectar->query("select id_resguardo from resguardos order by id_resguardo desc limit 1");
+			  		  while($resguardoID=mysqli_fetch_array($resultado))
+			  		  {
+	                     $id_resguardo=$resguardoID['id_resguardo'];
+			  		  }
+		  		}
+		  		else
+		  		{
+		  			return 0;
+		  		}
+
+		  		foreach ($datos as $dato) {
+		  			if(isset($dato->id))
+		  			{
+		  				 $consulta=$this->conectar->query("insert into detalles_resguardo
+			  			(idresguardo,idarticulos,cantidad) 
+			  			values
+			  			($id_resguardo,'$dato->id',1)");
+		  			}
+		  			
+		  		
+		  		}
+		  		return $consulta;
+		  	}
+
 		  	public function delete_articulos($id)
 		  	{
 		  		$consulta=$this->conectar->query("delete from articulos where id_articulo=$id");
@@ -57,10 +96,10 @@ require '../../db/conexion.php';
 		  		$consulta=$this->conectar->query("select * from persona where no_colaborador = $buscar->campo");
 		  		while($filas=$consulta->fetch_assoc())
 		        {
-		            $this->articulos[]=$filas;
+		            $this->personas[]=$filas;
 		        }
 
-		        return $this->articulos;
+		        return $this->personas;
 		  	}
 	  }
 ?>
