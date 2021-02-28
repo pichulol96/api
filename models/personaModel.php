@@ -11,6 +11,7 @@ require '../../db/conexion.php';
 		  	{
 		  		$this->conectar=conectar::conexion();
 		  		$this->personas=array();
+		  		$this->resguardo=array();
 		  	}
 
 		  	public function get_articulos()
@@ -48,15 +49,33 @@ require '../../db/conexion.php';
 
 		  		public function insert_resguardo($datos)
 		  	{
+
 		  		     date_default_timezone_set('America/Mexico_City');
 					 $time=time();               ////Fecha/////
 					 $fecha=date("Y-m-d");/////Actual///
 					 $hoy = date("H:i:s"); 
+                     
+                     foreach ($datos as $recorrer) 
+                     { //para sacar el colaborador y las observaciones
+			  			if(isset($recorrer->observaciones) &&($recorrer->colaborador))
+			  			{
+			  				$observaciones=$recorrer->observaciones;
+			  				$colaborador=$recorrer->colaborador;
+			  			}
+		  			 }
+		  			 if($colaborador)
+		  			 {
+		  			 	$person=$this->conectar->query("select idpersona from persona where no_colaborador=$colaborador  limit 1");
+				  		  while($colaboradorID=mysqli_fetch_array($person))
+				  		  {
+		                     $id_persona=$colaboradorID['idpersona'];
+				  		  }
+		  			 }
 
 		  		$insertResguardo=$this->conectar->query("insert into resguardos
 		  			(fecha,hora,observaciones,idusuario,idpersona)
 		  			values
-		  			('$fecha','$hoy','bueno',1,1)");
+		  			('$fecha','$hoy','$observaciones',1,$id_persona)");
 
 		  		if($insertResguardo==true)
 		  		{
@@ -100,6 +119,17 @@ require '../../db/conexion.php';
 		        }
 
 		        return $this->personas;
+		  	}
+
+		  		public function search_resguardo($buscar)
+		  	{
+		  		$consulta=$this->conectar->query("select * from  resguardos where $buscar->filtro LIKE '%$buscar->campo%'");
+		  		while($filas=$consulta->fetch_assoc())
+		        {
+		            $this->resguardo[]=$filas;
+		        }
+
+		        return $this->resguardo;
 		  	}
 	  }
 ?>

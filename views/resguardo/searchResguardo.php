@@ -1,24 +1,26 @@
 <?php 
 //require '../controllers/ArticulosController.php';
 header("Access-Control-Allow-Origin:*");
-header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
+//header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
 header("Context-type: application/json;");
 require '../../models/personaModel.php';
 
 
-$resguardo=new persona_model();
+ $resguardo=new persona_model ();
  $json = file_get_contents('php://input');
  $params = json_decode($json);
-
-	$datos=$resguardo->insert_resguardo($params);
-	if($datos>0)
+	$datos=$resguardo->search_resguardo($params);
+	if($datos==true)
 	{
-		echo json_encode("Resguardo registrado");
+      echo json_encode($datos);
 	}
 	else
 	{
-		echo json_encode("Hubo un error");
+		echo json_encode($datos);
 	}
+	
+
+
 
 
 

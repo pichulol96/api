@@ -8,5 +8,11 @@
         }
     }
 
+   $usuario='root';
+   $pws='';
+   $servidor='localhost';
+   $bd='crud';
+   $con= mysqli_connect($servidor,$usuario,$pws,$bd);
+
     
 ?>
