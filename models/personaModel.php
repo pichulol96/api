@@ -101,7 +101,8 @@ require '../../db/conexion.php';
 		  			
 		  		
 		  		}
-		  		return $consulta;
+                
+		  		return $id_resguardo;
 		  	}
 
 		  	public function delete_articulos($id)
@@ -123,7 +124,7 @@ require '../../db/conexion.php';
 
 		  		public function search_resguardo($buscar)
 		  	{
-		  		$consulta=$this->conectar->query("select * from  resguardos where $buscar->filtro LIKE '%$buscar->campo%'");
+		  		$consulta=$this->conectar->query("select * from  resguardos_entregados where $buscar->filtro LIKE '%$buscar->campo%'");
 		  		while($filas=$consulta->fetch_assoc())
 		        {
 		            $this->resguardo[]=$filas;

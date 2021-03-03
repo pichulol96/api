@@ -13,7 +13,7 @@ $resguardo=new persona_model();
 	$datos=$resguardo->insert_resguardo($params);
 	if($datos>0)
 	{
-		echo json_encode("Resguardo registrado");
+		echo json_encode($datos);
 	}
 	else
 	{
