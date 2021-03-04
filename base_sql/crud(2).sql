@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 28-02-2021 a las 02:03:26
+-- Tiempo de generación: 04-03-2021 a las 05:13:04
 -- Versión del servidor: 10.4.8-MariaDB
 -- Versión de PHP: 7.3.11
 
@@ -26,8 +26,20 @@ DELIMITER $$
 --
 -- Procedimientos
 --
+CREATE DEFINER=`root`@`localhost` PROCEDURE `eliminar_articulos` (IN `id` INT(100))  begin
+declare resul int (10) ;
+set resul=(select idarticulos from detalles_resguardo where idarticulos=id);
+if(resul>0) then
+update articulos set estado='eliminado' where id_articulo=id;
+else
+delete from articulos where id_articulo=id;
+end if;
+
+
+end$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `resguardos_entregados` (IN `id` INT(100))  begin
-select  r.id_resguardo,r.fecha,r.hora,r.observaciones,
+select  r.id_resguardo,r.fecha,r.hora,r.observaciones,r.estado,
 u.nombre_usuario,u.correo,u.puesto,u.nombre_completo,u.personal_externo,u.departamento_usuario,
 p.no_colaborador,p.nombre,p.apellidos,p.departamento from resguardos
 as r inner join usuario as u on r.idusuario=u.idusuario
@@ -63,20 +75,20 @@ CREATE TABLE `articulos` (
   `descripcion` text DEFAULT NULL,
   `localizacion` text NOT NULL,
   `imagen` text DEFAULT NULL,
-  `idusuario` int(11) NOT NULL
+  `idusuario` int(11) NOT NULL,
+  `estado` varchar(30) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Volcado de datos para la tabla `articulos`
 --
 
-INSERT INTO `articulos` (`id_articulo`, `categoria`, `marca`, `modelo`, `no_serie`, `no_inventario`, `cantidad`, `descripcion`, `localizacion`, `imagen`, `idusuario`) VALUES
-(2, 'Impresora', 'IC line', 'ACa02983', 'SLRKI2984', 'ACA00189836', 5, 'Impresoras stock', 'inventario', '1.jpg', 2),
-(3, 'Monitor', 'HP', 'HP deks', 'LDKIE2983', 'ACA00019001', 8, 'Monitores hp para no se', 'inventario', '2.jpg', 1),
-(4, 'Ipads', 'Apple', 'apple123', 'apple air 12', 'ACA0001000123', 3, 'ipads para recepción', 'inventario', '3.jpg', 1),
-(5, 'CPU', 'HP', 'Hp jauue', 'HP00945', 'ACA0010002497', 10, 'Cpus para reemplazo', 'invenatrio', '4.jpg', 2),
-(439, 'Impresora', 'HP', 'NMP98', '123457789', '67', 100, 'Impresora de china ', 'Area de resguardo', '5.jpg', 1),
-(440, 'Computadora', 'Lenovo', 'LPO98', '999909', '87', 20, 'Computadora de escritorio', 'TI', '6.jpg', 1);
+INSERT INTO `articulos` (`id_articulo`, `categoria`, `marca`, `modelo`, `no_serie`, `no_inventario`, `cantidad`, `descripcion`, `localizacion`, `imagen`, `idusuario`, `estado`) VALUES
+(2, 'Impresora', 'IC line', 'ACa02983', 'SLRKI2984', 'ACA00189836', 5, 'Impresoras stock', 'inventario', '1.jpg', 2, 'activo'),
+(3, 'Monitor', 'HP', 'HP deks', 'LDKIE2983', 'ACA00019001', 8, 'Monitores hp para no se', 'inventario', '2.jpg', 1, 'activo'),
+(4, 'Ipads', 'Apple', 'apple123', 'apple air 12', 'ACA0001000123', 3, 'ipads para recepción', 'inventario', '3.jpg', 1, 'activo'),
+(5, 'CPU', 'HP', 'Hp jauue', 'HP00945', 'ACA0010002497', 10, 'Cpus para reemplazo', 'invenatrio', '4.jpg', 2, 'activo'),
+(439, 'Impresora', 'HP', 'NMP98', '123457789', '67', 100, 'Impresora de china ', 'Area de resguardo', '5.jpg', 1, 'activo');
 
 -- --------------------------------------------------------
 
@@ -92,19 +104,18 @@ CREATE TABLE `detalles_resguardo` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
--- Volcado de datos para la tabla `detalles_resguardo`
+-- Disparadores `detalles_resguardo`
 --
-
-INSERT INTO `detalles_resguardo` (`id_detalles`, `idresguardo`, `idarticulos`, `cantidad`) VALUES
-(87, 25, 2, 1),
-(88, 25, 3, 1),
-(89, 26, 5, 1),
-(90, 26, 3, 1),
-(91, 26, 4, 1),
-(92, 27, 439, 1),
-(93, 27, 440, 1),
-(94, 27, 4, 1),
-(95, 27, 3, 1);
+DELIMITER $$
+CREATE TRIGGER `after_detalles_resguardo_insert` AFTER INSERT ON `detalles_resguardo` FOR EACH ROW BEGIN
+    -- IF NEW.birthDate IS NULL THEN
+         update articulos set estado='inactivo' where id_articulo=new.idarticulos;
+        -- INSERT INTO reminders(memberId, message)
+        -- VALUES(new.id,CONCAT('Hi ', NEW.name, ', please update your date of birth.'));
+    -- END IF;
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -171,17 +182,33 @@ CREATE TABLE `resguardos` (
   `hora` time NOT NULL,
   `observaciones` varchar(80) DEFAULT NULL,
   `idusuario` int(15) NOT NULL,
-  `idpersona` int(15) NOT NULL
+  `idpersona` int(15) NOT NULL,
+  `estado` varchar(30) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Volcado de datos para la tabla `resguardos`
---
+-- --------------------------------------------------------
 
-INSERT INTO `resguardos` (`id_resguardo`, `fecha`, `hora`, `observaciones`, `idusuario`, `idpersona`) VALUES
-(25, '2021-02-25', '18:00:45', 'equipos ssalidos para la sale de ti ', 1, 1),
-(26, '2021-02-25', '18:02:14', '3 aparatos en buen estado', 1, 14),
-(27, '2021-02-27', '17:32:44', 'se solicitaron los siguientes equipos urgente', 1, 15);
+--
+-- Estructura Stand-in para la vista `resguardos_entregados`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `resguardos_entregados` (
+`id_resguardo` int(15)
+,`fecha` date
+,`hora` time
+,`observaciones` varchar(80)
+,`estado` varchar(30)
+,`nombre_usuario` char(15)
+,`correo` varchar(80)
+,`puesto` varchar(100)
+,`nombre_completo` char(100)
+,`personal_externo` varchar(50)
+,`departamento_usuario` varchar(60)
+,`no_colaborador` int(11)
+,`nombre` char(25)
+,`apellidos` char(50)
+,`departamento` varchar(60)
+);
 
 -- --------------------------------------------------------
 
@@ -227,6 +254,15 @@ CREATE TABLE `usuario` (
 
 INSERT INTO `usuario` (`idusuario`, `nombre_usuario`, `contraseña`, `correo`, `puesto`, `nombre_completo`, `no_colaborador`, `personal_externo`, `departamento_usuario`, `id_usuario`) VALUES
 (1, 'sasuke', '123', 'pichulol96@gmail.com', 'Jefe TI', 'Marco antonio lorenzo lucena', 1996, 'loco', 'TI', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `resguardos_entregados`
+--
+DROP TABLE IF EXISTS `resguardos_entregados`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `resguardos_entregados`  AS  select `r`.`id_resguardo` AS `id_resguardo`,`r`.`fecha` AS `fecha`,`r`.`hora` AS `hora`,`r`.`observaciones` AS `observaciones`,`r`.`estado` AS `estado`,`u`.`nombre_usuario` AS `nombre_usuario`,`u`.`correo` AS `correo`,`u`.`puesto` AS `puesto`,`u`.`nombre_completo` AS `nombre_completo`,`u`.`personal_externo` AS `personal_externo`,`u`.`departamento_usuario` AS `departamento_usuario`,`p`.`no_colaborador` AS `no_colaborador`,`p`.`nombre` AS `nombre`,`p`.`apellidos` AS `apellidos`,`p`.`departamento` AS `departamento` from ((`resguardos` `r` join `usuario` `u` on(`r`.`idusuario` = `u`.`idusuario`)) join `persona` `p` on(`r`.`idpersona` = `p`.`idpersona`)) ;
 
 -- --------------------------------------------------------
 
@@ -289,13 +325,13 @@ ALTER TABLE `usuario`
 -- AUTO_INCREMENT de la tabla `articulos`
 --
 ALTER TABLE `articulos`
-  MODIFY `id_articulo` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=444;
+  MODIFY `id_articulo` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=448;
 
 --
 -- AUTO_INCREMENT de la tabla `detalles_resguardo`
 --
 ALTER TABLE `detalles_resguardo`
-  MODIFY `id_detalles` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=96;
+  MODIFY `id_detalles` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=113;
 
 --
 -- AUTO_INCREMENT de la tabla `persona`
@@ -313,7 +349,7 @@ ALTER TABLE `productos`
 -- AUTO_INCREMENT de la tabla `resguardos`
 --
 ALTER TABLE `resguardos`
-  MODIFY `id_resguardo` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `id_resguardo` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
 -- AUTO_INCREMENT de la tabla `usuario`
