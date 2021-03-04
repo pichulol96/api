@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 04-03-2021 a las 05:13:04
+-- Tiempo de generación: 04-03-2021 a las 23:52:21
 -- Versión del servidor: 10.4.8-MariaDB
 -- Versión de PHP: 7.3.11
 
@@ -39,7 +39,7 @@ end if;
 end$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `resguardos_entregados` (IN `id` INT(100))  begin
-select  r.id_resguardo,r.fecha,r.hora,r.observaciones,r.estado,
+select  r.id_resguardo,r.fecha,r.hora,r.observaciones,r.estado,r.fecha_regreso,
 u.nombre_usuario,u.correo,u.puesto,u.nombre_completo,u.personal_externo,u.departamento_usuario,
 p.no_colaborador,p.nombre,p.apellidos,p.departamento from resguardos
 as r inner join usuario as u on r.idusuario=u.idusuario
@@ -89,6 +89,69 @@ INSERT INTO `articulos` (`id_articulo`, `categoria`, `marca`, `modelo`, `no_seri
 (4, 'Ipads', 'Apple', 'apple123', 'apple air 12', 'ACA0001000123', 3, 'ipads para recepción', 'inventario', '3.jpg', 1, 'activo'),
 (5, 'CPU', 'HP', 'Hp jauue', 'HP00945', 'ACA0010002497', 10, 'Cpus para reemplazo', 'invenatrio', '4.jpg', 2, 'activo'),
 (439, 'Impresora', 'HP', 'NMP98', '123457789', '67', 100, 'Impresora de china ', 'Area de resguardo', '5.jpg', 1, 'activo');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `bajas_articulos`
+--
+
+CREATE TABLE `bajas_articulos` (
+  `id_bajas` int(15) NOT NULL,
+  `fecha` date NOT NULL,
+  `hora` time NOT NULL,
+  `idusuario` int(15) DEFAULT NULL,
+  `descripcion` text NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Volcado de datos para la tabla `bajas_articulos`
+--
+
+INSERT INTO `bajas_articulos` (`id_bajas`, `fecha`, `hora`, `idusuario`, `descripcion`) VALUES
+(4, '2021-03-04', '16:16:12', 1, 'por puta'),
+(5, '2021-03-04', '16:18:42', 1, 'por puta'),
+(6, '2021-03-04', '16:19:05', 1, 'por puta'),
+(7, '2021-03-04', '16:38:32', 1, 'por locl');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `detalles_bajas_articulos`
+--
+
+CREATE TABLE `detalles_bajas_articulos` (
+  `id_detalles` int(15) NOT NULL,
+  `idbajas` int(15) DEFAULT NULL,
+  `idarticulos` int(15) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Volcado de datos para la tabla `detalles_bajas_articulos`
+--
+
+INSERT INTO `detalles_bajas_articulos` (`id_detalles`, `idbajas`, `idarticulos`) VALUES
+(7, 4, 2),
+(8, 4, 3),
+(9, 5, 4),
+(10, 5, 5),
+(11, 6, 439),
+(12, 7, 3),
+(13, 7, 4);
+
+--
+-- Disparadores `detalles_bajas_articulos`
+--
+DELIMITER $$
+CREATE TRIGGER `after_detalles_bajas_articulos_insert` AFTER INSERT ON `detalles_bajas_articulos` FOR EACH ROW BEGIN
+    -- IF NEW.birthDate IS NULL THEN
+         update articulos set estado='eliminado' where id_articulo=new.idarticulos;
+        -- INSERT INTO reminders(memberId, message)
+        -- VALUES(new.id,CONCAT('Hi ', NEW.name, ', please update your date of birth.'));
+    -- END IF;
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -183,7 +246,8 @@ CREATE TABLE `resguardos` (
   `observaciones` varchar(80) DEFAULT NULL,
   `idusuario` int(15) NOT NULL,
   `idpersona` int(15) NOT NULL,
-  `estado` varchar(30) NOT NULL
+  `estado` varchar(30) NOT NULL,
+  `fecha_regreso` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -284,6 +348,21 @@ ALTER TABLE `articulos`
   ADD PRIMARY KEY (`id_articulo`);
 
 --
+-- Indices de la tabla `bajas_articulos`
+--
+ALTER TABLE `bajas_articulos`
+  ADD PRIMARY KEY (`id_bajas`),
+  ADD KEY `detalles_bajas` (`idusuario`);
+
+--
+-- Indices de la tabla `detalles_bajas_articulos`
+--
+ALTER TABLE `detalles_bajas_articulos`
+  ADD PRIMARY KEY (`id_detalles`),
+  ADD KEY `detalles_baja_id` (`idbajas`),
+  ADD KEY `articulo_id` (`idarticulos`);
+
+--
 -- Indices de la tabla `detalles_resguardo`
 --
 ALTER TABLE `detalles_resguardo`
@@ -328,10 +407,22 @@ ALTER TABLE `articulos`
   MODIFY `id_articulo` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=448;
 
 --
+-- AUTO_INCREMENT de la tabla `bajas_articulos`
+--
+ALTER TABLE `bajas_articulos`
+  MODIFY `id_bajas` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT de la tabla `detalles_bajas_articulos`
+--
+ALTER TABLE `detalles_bajas_articulos`
+  MODIFY `id_detalles` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+
+--
 -- AUTO_INCREMENT de la tabla `detalles_resguardo`
 --
 ALTER TABLE `detalles_resguardo`
-  MODIFY `id_detalles` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=113;
+  MODIFY `id_detalles` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=130;
 
 --
 -- AUTO_INCREMENT de la tabla `persona`
@@ -349,7 +440,7 @@ ALTER TABLE `productos`
 -- AUTO_INCREMENT de la tabla `resguardos`
 --
 ALTER TABLE `resguardos`
-  MODIFY `id_resguardo` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
+  MODIFY `id_resguardo` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
 
 --
 -- AUTO_INCREMENT de la tabla `usuario`
@@ -360,6 +451,19 @@ ALTER TABLE `usuario`
 --
 -- Restricciones para tablas volcadas
 --
+
+--
+-- Filtros para la tabla `bajas_articulos`
+--
+ALTER TABLE `bajas_articulos`
+  ADD CONSTRAINT `detalles_bajas` FOREIGN KEY (`idusuario`) REFERENCES `usuario` (`idusuario`);
+
+--
+-- Filtros para la tabla `detalles_bajas_articulos`
+--
+ALTER TABLE `detalles_bajas_articulos`
+  ADD CONSTRAINT `articulo_id` FOREIGN KEY (`idarticulos`) REFERENCES `articulos` (`id_articulo`),
+  ADD CONSTRAINT `detalles_baja_id` FOREIGN KEY (`idbajas`) REFERENCES `bajas_articulos` (`id_bajas`);
 
 --
 -- Filtros para la tabla `detalles_resguardo`
