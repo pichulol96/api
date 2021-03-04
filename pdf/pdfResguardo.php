@@ -72,6 +72,7 @@ $query=mysqli_query($con,$sql);
 while ($resul=mysqli_fetch_array($query))
 {
  $estado=$resul['estado'];
+ $fecha_regreso=$resul['fecha_regreso'];
  $departamento_usuario=$resul['departamento_usuario'];
  $nombre_usuario=$resul['nombre_completo'];
  $fecha=$resul['fecha'];
@@ -88,10 +89,10 @@ while ($resul=mysqli_fetch_array($query))
 $pdf = new PDF();
 $pdf->AliasNbPages();
 $pdf->AddPage();
-$pdf->SetFont('Arial','',18);
-if($estado=="bajas")
+$pdf->SetFont('Arial','',15);
+if($estado=="inactivo")
 {
-  $pdf->Cell(0,5,'Este resguardo ya fue dado de baja',0,1,'C',0);
+  $pdf->Cell(0,5,'Este resguardo ya fue regresado al departamento: '.$fecha_regreso,0,1,'C',0);
 }
 
 $pdf->SetFont('Arial','',12);

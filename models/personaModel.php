@@ -75,7 +75,7 @@ require '../../db/conexion.php';
 		  		$insertResguardo=$this->conectar->query("insert into resguardos
 		  			(fecha,hora,observaciones,idusuario,idpersona,estado)
 		  			values
-		  			('$fecha','$hoy','$observaciones',1,$id_persona,'altas')");
+		  			('$fecha','$hoy','$observaciones',1,$id_persona,'activo')");
 
 		  		if($insertResguardo==true)
 		  		{
@@ -107,8 +107,13 @@ require '../../db/conexion.php';
 
 		  	public function delete_resguardo($id)
 		  	{
+		  		     date_default_timezone_set('America/Mexico_City');
+					 $time=time();               ////Fecha/////
+					 $fecha=date("Y-m-d");/////Actual///
+					 $hoy = date("H:i:s"); 
+
 		  		$resultados=array();
-		  		$consulta=$this->conectar->query("update resguardos set estado='bajas' where id_resguardo=$id");
+		  		$consulta=$this->conectar->query("update resguardos set estado='inactivo',fecha_regreso='$fecha' where id_resguardo=$id");
 		  		$selecionar=$this->conectar->query("select idarticulos from detalles_resguardo where idresguardo=$id");
 		  		while($filas=mysqli_fetch_array($selecionar))
 		        {
