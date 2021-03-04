@@ -27,16 +27,16 @@
 		  	public function insert_articulos($datos)
 		  	{
 		  		$consulta=$this->conectar->query("insert into articulos
-		  			(categoria,marca,modelo,no_serie,no_inventario,cantidad,descripcion,localizacion,imagen,idusuario) 
+		  			(categoria,marca,modelo,no_serie,no_inventario,cantidad,descripcion,localizacion,imagen,idusuario,estado) 
 		  			values
-		  			('$datos->categoria','$datos->marca','$datos->modelo','$datos->serie','$datos->inventario',$datos->cantidad,'$datos->descripcion','$datos->localizacion','$datos->imagen','1')  ");
+		  			('$datos->categoria','$datos->marca','$datos->modelo','$datos->serie','$datos->inventario',$datos->cantidad,'$datos->descripcion','$datos->localizacion','$datos->imagen','1','activo')  ");
 
 		  		return $consulta;
 		  	}
 
 		  	public function delete_articulos($id)
 		  	{
-		  		$consulta=$this->conectar->query("delete from articulos where id_articulo=$id");
+		  		$consulta=$this->conectar->query("call eliminar_articulos($id);");
 		  		return $consulta;
 		  	}
 

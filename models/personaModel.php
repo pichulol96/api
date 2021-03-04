@@ -73,9 +73,9 @@ require '../../db/conexion.php';
 		  			 }
 
 		  		$insertResguardo=$this->conectar->query("insert into resguardos
-		  			(fecha,hora,observaciones,idusuario,idpersona)
+		  			(fecha,hora,observaciones,idusuario,idpersona,estado)
 		  			values
-		  			('$fecha','$hoy','$observaciones',1,$id_persona)");
+		  			('$fecha','$hoy','$observaciones',1,$id_persona,'altas')");
 
 		  		if($insertResguardo==true)
 		  		{
@@ -105,10 +105,18 @@ require '../../db/conexion.php';
 		  		return $id_resguardo;
 		  	}
 
-		  	public function delete_articulos($id)
+		  	public function delete_resguardo($id)
 		  	{
-		  		$consulta=$this->conectar->query("delete from articulos where id_articulo=$id");
-		  		return $consulta;
+		  		$resultados=array();
+		  		$consulta=$this->conectar->query("update resguardos set estado='bajas' where id_resguardo=$id");
+		  		$selecionar=$this->conectar->query("select idarticulos from detalles_resguardo where idresguardo=$id");
+		  		while($filas=mysqli_fetch_array($selecionar))
+		        {
+		           $update_articulos=$this->conectar->query("update articulos set estado='activo' where id_articulo=$filas[idarticulos]");
+		        }
+
+
+		  		return $update_articulos;
 		  	}
 
 		  	public function search_persona($buscar)
