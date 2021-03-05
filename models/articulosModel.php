@@ -90,6 +90,18 @@
 		  		return $id_resguardo;
 		  	}
 
+
+		  	public function lista_bajas($buscar)
+		  	{
+		  		$consulta=$this->conectar->query("select * from  lista_bajas where $buscar->filtro LIKE '%$buscar->campo%'" );
+		  		while($filas=$consulta->fetch_assoc())
+		        {
+		            $this->articulos[]=$filas;
+		        }
+
+		        return $this->articulos;
+		  	}
+
 		  	public function search_articulos($buscar)
 		  	{
 		  		$consulta=$this->conectar->query("select * from  articulos where $buscar->filtro LIKE '%$buscar->campo%' and estado !='eliminado'" );
