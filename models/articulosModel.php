@@ -25,11 +25,27 @@
 		  	}
 
 		  	public function insert_articulos($datos)
-		  	{
+		  	{  
+		  		/*
+		  		 $nombre_imagen=$datos->imagen;
+				 $imagen_nombre=$_FILES[$datos->imagen]['name'];
+			     $imagen_tipo=$_FILES[$datos->imagen]['tmp_name'];
+			     $tiempo=time();
+			     $ruta=$tiempo.$imagen_nombre;
+			     $destino="../arcivos/articulos/";
+			     $destino=$destino.$tiempo.$imagen_nombre;
+
+			     if (is_uploaded_file($imagen_tipo)) 
+				{
+					
+					copy($imagen_tipo, $destino);
+				}
+				*/
 		  		$consulta=$this->conectar->query("insert into articulos
 		  			(categoria,marca,modelo,no_serie,no_inventario,cantidad,descripcion,localizacion,imagen,idusuario,estado) 
 		  			values
-		  			('$datos->categoria','$datos->marca','$datos->modelo','$datos->serie','$datos->inventario',$datos->cantidad,'$datos->descripcion','$datos->localizacion','$datos->imagen','1','activo')  ");
+		  			('$datos->categoria','$datos->marca','$datos->modelo','$datos->serie','$datos->inventario',$datos->cantidad,'$datos->descripcion',
+		  			    '$datos->localizacion','$datos->imagen','1','activo')  ");
 
 		  		return $consulta;
 		  	}
@@ -111,6 +127,13 @@
 		        }
 
 		        return $this->articulos;
+		  	}
+
+		  	public function edit_articulo($datos)
+		  	{
+		  		$consulta=$this->conectar->query("update articulos set categoria='$datos->categoria',marca='$datos->marca',modelo='$datos->modelo',no_serie='$datos->serie',no_inventario='$datos->noInventario',cantidad='$datos->cantidad', descripcion='$datos->descripcion',localizacion='$datos->localizacion'
+		  			 where id_articulo=$datos->id" );
+		  		return $consulta;
 		  	}
 	  }
 ?>

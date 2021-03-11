@@ -49,7 +49,8 @@ require '../../db/conexion.php';
 
 		  		public function insert_resguardo($datos)
 		  	{
-
+                      
+                     
 		  		     date_default_timezone_set('America/Mexico_City');
 					 $time=time();               ////Fecha/////
 					 $fecha=date("Y-m-d");/////Actual///

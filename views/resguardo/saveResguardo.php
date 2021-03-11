@@ -1,5 +1,6 @@
 <?php 
 //require '../controllers/ArticulosController.php';
+//session_start();
 header("Access-Control-Allow-Origin:*");
 header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
 header("Context-type: application/json;");

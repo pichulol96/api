@@ -1,25 +1,26 @@
 <?php 
-//session_start();
 //require '../controllers/ArticulosController.php';
 header("Access-Control-Allow-Origin:*");
 header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
 header("Context-type: application/json;");
-require '../../models/personaModel.php';
+require '../models/articulosModel.php';
 
 
-$articulos=new persona_model();
+ $articulos=new articulos_model();
  $json = file_get_contents('php://input');
  $params = json_decode($json);
-
-	$datos=$articulos->insert_persona($params);
-	if($datos>0)
+	$datos=$articulos->edit_articulo($params);
+	if($datos==true)
 	{
-		echo json_encode("Persona registrada");
+      echo json_encode($datos);
 	}
 	else
 	{
-		echo json_encode("Ya existe");
+		echo json_encode($datos);
 	}
+	
+
+
 
 
 

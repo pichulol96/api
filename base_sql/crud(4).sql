@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 04-03-2021 a las 23:52:21
+-- Tiempo de generación: 12-03-2021 a las 00:27:25
 -- Versión del servidor: 10.4.8-MariaDB
 -- Versión de PHP: 7.3.11
 
@@ -35,6 +35,16 @@ else
 delete from articulos where id_articulo=id;
 end if;
 
+
+end$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `lista_bajas_articulos` (IN `id` INT(100))  begin
+select d.idbajas,d.idarticulos,
+a.categoria,a.marca,a.modelo,a.no_serie,a.no_inventario,a.descripcion,a.localizacion,a.imagen
+from detalles_bajas_articulos
+as d inner join articulos as a on d.idarticulos=a.id_articulo
+
+where idbajas =id;
 
 end$$
 
@@ -84,11 +94,13 @@ CREATE TABLE `articulos` (
 --
 
 INSERT INTO `articulos` (`id_articulo`, `categoria`, `marca`, `modelo`, `no_serie`, `no_inventario`, `cantidad`, `descripcion`, `localizacion`, `imagen`, `idusuario`, `estado`) VALUES
-(2, 'Impresora', 'IC line', 'ACa02983', 'SLRKI2984', 'ACA00189836', 5, 'Impresoras stock', 'inventario', '1.jpg', 2, 'activo'),
-(3, 'Monitor', 'HP', 'HP deks', 'LDKIE2983', 'ACA00019001', 8, 'Monitores hp para no se', 'inventario', '2.jpg', 1, 'activo'),
-(4, 'Ipads', 'Apple', 'apple123', 'apple air 12', 'ACA0001000123', 3, 'ipads para recepción', 'inventario', '3.jpg', 1, 'activo'),
-(5, 'CPU', 'HP', 'Hp jauue', 'HP00945', 'ACA0010002497', 10, 'Cpus para reemplazo', 'invenatrio', '4.jpg', 2, 'activo'),
-(439, 'Impresora', 'HP', 'NMP98', '123457789', '67', 100, 'Impresora de china ', 'Area de resguardo', '5.jpg', 1, 'activo');
+(2, 'Impresora', 'Dell', '3323', '44490', '0904', 1, 'Impresora termica', 'inventario', '1.jpg', 2, 'inactivo'),
+(3, 'Monitor', 'Samsung', 'gt658', '127890', '1000', 1, 'Monitores de 68 pulgadas', 'inventario', '2.jpg', 1, 'inactivo'),
+(4, 'Tableta', 'Iphone', '5773u', 'fffdfdfdf2', '098', 1, 'Table apple', 'inventario', '3.jpg', 1, 'activo'),
+(5, 'Impresora', 'Dell', '2212jk', '8899823', '224131', 1, 'Impresoras stock', 'inventario', '4.jpg', 2, 'activo'),
+(439, 'Impresora', 'HP', 'NPOR', '24332', '8907', 1, 'Impresora china', 'inventario', '5.jpg', 1, 'activo'),
+(481, 'fdf', 'dfdf', 'dfdfd', 'fdf', 'dfdf', 1, 'fdfdf', 'fdf', '7.jpg', 1, 'activo'),
+(482, 'Mouse', 'HP', 'tecu180', '980822', '9893', 1, 'Mouse', 'Inventario', 'mause.jpg', 1, 'activo');
 
 -- --------------------------------------------------------
 
@@ -104,16 +116,6 @@ CREATE TABLE `bajas_articulos` (
   `descripcion` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Volcado de datos para la tabla `bajas_articulos`
---
-
-INSERT INTO `bajas_articulos` (`id_bajas`, `fecha`, `hora`, `idusuario`, `descripcion`) VALUES
-(4, '2021-03-04', '16:16:12', 1, 'por puta'),
-(5, '2021-03-04', '16:18:42', 1, 'por puta'),
-(6, '2021-03-04', '16:19:05', 1, 'por puta'),
-(7, '2021-03-04', '16:38:32', 1, 'por locl');
-
 -- --------------------------------------------------------
 
 --
@@ -125,19 +127,6 @@ CREATE TABLE `detalles_bajas_articulos` (
   `idbajas` int(15) DEFAULT NULL,
   `idarticulos` int(15) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Volcado de datos para la tabla `detalles_bajas_articulos`
---
-
-INSERT INTO `detalles_bajas_articulos` (`id_detalles`, `idbajas`, `idarticulos`) VALUES
-(7, 4, 2),
-(8, 4, 3),
-(9, 5, 4),
-(10, 5, 5),
-(11, 6, 439),
-(12, 7, 3),
-(13, 7, 4);
 
 --
 -- Disparadores `detalles_bajas_articulos`
@@ -167,6 +156,17 @@ CREATE TABLE `detalles_resguardo` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
+-- Volcado de datos para la tabla `detalles_resguardo`
+--
+
+INSERT INTO `detalles_resguardo` (`id_detalles`, `idresguardo`, `idarticulos`, `cantidad`) VALUES
+(130, 52, 2, 1),
+(131, 53, 2, 1),
+(132, 53, 4, 1),
+(133, 54, 3, 1),
+(134, 55, 2, 1);
+
+--
 -- Disparadores `detalles_resguardo`
 --
 DELIMITER $$
@@ -179,6 +179,27 @@ CREATE TRIGGER `after_detalles_resguardo_insert` AFTER INSERT ON `detalles_resgu
 END
 $$
 DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `lista_bajas`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `lista_bajas` (
+`id_bajas` int(15)
+,`fecha` date
+,`hora` time
+,`descripcion` text
+,`idusuario` int(15)
+,`nombre_usuario` char(15)
+,`correo` varchar(80)
+,`puesto` varchar(100)
+,`nombre_completo` char(100)
+,`no_colaborador` int(11)
+,`personal_externo` varchar(50)
+,`departamento_usuario` varchar(60)
+);
 
 -- --------------------------------------------------------
 
@@ -250,6 +271,16 @@ CREATE TABLE `resguardos` (
   `fecha_regreso` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+--
+-- Volcado de datos para la tabla `resguardos`
+--
+
+INSERT INTO `resguardos` (`id_resguardo`, `fecha`, `hora`, `observaciones`, `idusuario`, `idpersona`, `estado`, `fecha_regreso`) VALUES
+(52, '2021-03-04', '20:05:10', 'nmmnmnmnmn', 1, 15, 'inactivo', '2021-03-04'),
+(53, '2021-03-07', '12:44:16', 'Saliendo para el area de administracion', 1, 1, 'inactivo', '2021-03-10'),
+(54, '2021-03-10', '21:12:50', 'nada', 1, 1, 'activo', NULL),
+(55, '2021-03-10', '21:39:32', 'para jonatan de area de ti', 1, 1, 'activo', NULL);
+
 -- --------------------------------------------------------
 
 --
@@ -296,28 +327,75 @@ CREATE TABLE `resguardos_entregados_articulos` (
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `roles`
+--
+
+CREATE TABLE `roles` (
+  `id_rol` int(15) NOT NULL,
+  `rol` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Volcado de datos para la tabla `roles`
+--
+
+INSERT INTO `roles` (`id_rol`, `rol`) VALUES
+(1, 'administrador'),
+(2, 'sub administrador');
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `usuario`
 --
 
 CREATE TABLE `usuario` (
   `idusuario` int(15) NOT NULL,
   `nombre_usuario` char(15) NOT NULL,
-  `contraseña` varchar(20) NOT NULL,
+  `contrasena` varchar(20) NOT NULL,
   `correo` varchar(80) NOT NULL,
   `puesto` varchar(100) DEFAULT NULL,
   `nombre_completo` char(100) NOT NULL,
   `no_colaborador` int(11) DEFAULT NULL,
   `personal_externo` varchar(50) DEFAULT NULL,
   `departamento_usuario` varchar(60) DEFAULT NULL,
-  `id_usuario` int(11) NOT NULL
+  `idrol` int(15) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Volcado de datos para la tabla `usuario`
 --
 
-INSERT INTO `usuario` (`idusuario`, `nombre_usuario`, `contraseña`, `correo`, `puesto`, `nombre_completo`, `no_colaborador`, `personal_externo`, `departamento_usuario`, `id_usuario`) VALUES
-(1, 'sasuke', '123', 'pichulol96@gmail.com', 'Jefe TI', 'Marco antonio lorenzo lucena', 1996, 'loco', 'TI', 1);
+INSERT INTO `usuario` (`idusuario`, `nombre_usuario`, `contrasena`, `correo`, `puesto`, `nombre_completo`, `no_colaborador`, `personal_externo`, `departamento_usuario`, `idrol`) VALUES
+(1, 'sasuke', '123', 'pichulol96@gmail.com', 'Jefe TI', 'Marco antonio lorenzo lucena', 1996, 'loco', 'TI', 1),
+(2, 'skate', '123', 'prooskate@hotmail.com', 'Gerente TI', 'Adriana Rodriguez Martinez', 1997, 'direccion', 'TI', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `usuarios_roles`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `usuarios_roles` (
+`idusuario` int(15)
+,`nombre_usuario` char(15)
+,`correo` varchar(80)
+,`puesto` varchar(100)
+,`nombre_completo` char(100)
+,`no_colaborador` int(11)
+,`personal_externo` varchar(50)
+,`departamento_usuario` varchar(60)
+,`rol` varchar(50)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `lista_bajas`
+--
+DROP TABLE IF EXISTS `lista_bajas`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `lista_bajas`  AS  select `b`.`id_bajas` AS `id_bajas`,`b`.`fecha` AS `fecha`,`b`.`hora` AS `hora`,`b`.`descripcion` AS `descripcion`,`u`.`idusuario` AS `idusuario`,`u`.`nombre_usuario` AS `nombre_usuario`,`u`.`correo` AS `correo`,`u`.`puesto` AS `puesto`,`u`.`nombre_completo` AS `nombre_completo`,`u`.`no_colaborador` AS `no_colaborador`,`u`.`personal_externo` AS `personal_externo`,`u`.`departamento_usuario` AS `departamento_usuario` from (`bajas_articulos` `b` join `usuario` `u` on(`b`.`idusuario` = `u`.`idusuario`)) ;
 
 -- --------------------------------------------------------
 
@@ -336,6 +414,15 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 DROP TABLE IF EXISTS `resguardos_entregados_articulos`;
 
 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `resguardos_entregados_articulos`  AS  select `d`.`idresguardo` AS `idresguardo`,`d`.`cantidad` AS `cantidad`,`a`.`imagen` AS `imagen`,`a`.`categoria` AS `categoria`,`a`.`marca` AS `marca`,`a`.`modelo` AS `modelo`,`a`.`no_serie` AS `no_serie`,`a`.`no_inventario` AS `no_inventario`,`a`.`localizacion` AS `localizacion`,`a`.`descripcion` AS `descripcion` from (`detalles_resguardo` `d` join `articulos` `a` on(`d`.`idarticulos` = `a`.`id_articulo`)) ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `usuarios_roles`
+--
+DROP TABLE IF EXISTS `usuarios_roles`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `usuarios_roles`  AS  select `u`.`idusuario` AS `idusuario`,`u`.`nombre_usuario` AS `nombre_usuario`,`u`.`correo` AS `correo`,`u`.`puesto` AS `puesto`,`u`.`nombre_completo` AS `nombre_completo`,`u`.`no_colaborador` AS `no_colaborador`,`u`.`personal_externo` AS `personal_externo`,`u`.`departamento_usuario` AS `departamento_usuario`,`r`.`rol` AS `rol` from (`usuario` `u` join `roles` `r` on(`u`.`idrol` = `r`.`id_rol`)) ;
 
 --
 -- Índices para tablas volcadas
@@ -391,10 +478,17 @@ ALTER TABLE `resguardos`
   ADD KEY `resguardo_usuario` (`idusuario`);
 
 --
+-- Indices de la tabla `roles`
+--
+ALTER TABLE `roles`
+  ADD PRIMARY KEY (`id_rol`);
+
+--
 -- Indices de la tabla `usuario`
 --
 ALTER TABLE `usuario`
-  ADD PRIMARY KEY (`idusuario`);
+  ADD PRIMARY KEY (`idusuario`),
+  ADD KEY `usuario_rol` (`idrol`);
 
 --
 -- AUTO_INCREMENT de las tablas volcadas
@@ -404,25 +498,25 @@ ALTER TABLE `usuario`
 -- AUTO_INCREMENT de la tabla `articulos`
 --
 ALTER TABLE `articulos`
-  MODIFY `id_articulo` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=448;
+  MODIFY `id_articulo` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=483;
 
 --
 -- AUTO_INCREMENT de la tabla `bajas_articulos`
 --
 ALTER TABLE `bajas_articulos`
-  MODIFY `id_bajas` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id_bajas` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT de la tabla `detalles_bajas_articulos`
 --
 ALTER TABLE `detalles_bajas_articulos`
-  MODIFY `id_detalles` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id_detalles` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=58;
 
 --
 -- AUTO_INCREMENT de la tabla `detalles_resguardo`
 --
 ALTER TABLE `detalles_resguardo`
-  MODIFY `id_detalles` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=130;
+  MODIFY `id_detalles` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=135;
 
 --
 -- AUTO_INCREMENT de la tabla `persona`
@@ -440,13 +534,19 @@ ALTER TABLE `productos`
 -- AUTO_INCREMENT de la tabla `resguardos`
 --
 ALTER TABLE `resguardos`
-  MODIFY `id_resguardo` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
+  MODIFY `id_resguardo` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
+
+--
+-- AUTO_INCREMENT de la tabla `roles`
+--
+ALTER TABLE `roles`
+  MODIFY `id_rol` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `idusuario` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `idusuario` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- Restricciones para tablas volcadas
@@ -478,6 +578,12 @@ ALTER TABLE `detalles_resguardo`
 ALTER TABLE `resguardos`
   ADD CONSTRAINT `resguardo_persona` FOREIGN KEY (`idpersona`) REFERENCES `persona` (`idpersona`),
   ADD CONSTRAINT `resguardo_usuario` FOREIGN KEY (`idusuario`) REFERENCES `usuario` (`idusuario`);
+
+--
+-- Filtros para la tabla `usuario`
+--
+ALTER TABLE `usuario`
+  ADD CONSTRAINT `usuario_rol` FOREIGN KEY (`idrol`) REFERENCES `roles` (`id_rol`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
